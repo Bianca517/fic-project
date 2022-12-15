@@ -2,6 +2,7 @@ from src import header
 from input_data import opcodes 
 import re
 
+LABEL_DICT = {}
 
 def get_opcode(operation):
    key_list = list(opcodes.opcodes_list.keys())
@@ -49,36 +50,68 @@ def get_binary_code_for_register(string):
 
 
 def get_termen(string):
+    global LABEL_DICT
     #termen might have Rx format or #N; 
     binary_code = 0
     if '#' in string:
         binary_code = get_binary_code_for_immediate(string)
     elif 'R' in string:
         binary_code = get_binary_code_for_register(string)
+    elif string in LABEL_DICT.keys():
+        #get address
+        binary_code = LABEL_DICT[string]
     return binary_code
 
 
-def parse_asm_line(line, output_file):
+def write_output(output_file, opcode, termens_arr):
+    print(opcode)
+    output_file.write(opcode)
+
+    for termen in termens_arr:
+        print(termen)
+        output_file.write(str(termen))
+
+def get_instruction_number_formatted(instruction_number):
+    return bin(instruction_number)[2:].zfill(10)
+
+def parse_asm_line(line, output_file, instruction_number):
+    global LABEL_DICT
+    termens_arr = []
     words_in_line = re.split(" |, ", line)
     print(words_in_line)
     #if there is a label, the opcode is on index 1 in the line
     operation_index = 0 if is_operation(words_in_line[0]) else 1
+
+    if(operation_index == 1): #we have label => add it to dict
+        ten_bit_instruction_number = get_instruction_number_formatted(instruction_number)
+        LABEL_DICT.update({words_in_line[0]: ten_bit_instruction_number})
+
     operation = words_in_line[operation_index]
     opcode = get_opcode(operation)
 
-    #termen might be immediate value or register
-    termen1 = get_termen(words_in_line[operation_index + 1])
-    termen2 = get_termen(words_in_line[operation_index + 2])
-    print(opcode + " " + termen1 + " " + termen2)
-    output_file.write(opcode + termen1 + termen2)
+    #index through the rest of termens in the line
+    for index in range (operation_index + 1, len(words_in_line)):
+        #termen might be immediate value or register or label
+        termen = get_termen(words_in_line[index])
+        termens_arr.append(termen)
+
+    write_output(output_file, opcode, termens_arr)
 
 
 def open_and_parse_file():
     output_file = open(header.PATH_TO_OUTPUT_FILE, "w")
     code_file = open(header.PATH_TO_ASM_FILE, "r")
+
+    instruction_number = 0
     line_to_decode = code_file.readline()
     while(line_to_decode):
-        parse_asm_line(line_to_decode, output_file)
+        #get rid of the last endl
+        if line_to_decode[-1] == '\n':
+            line_to_decode = line_to_decode[:-1]
+
+        parse_asm_line(line_to_decode, output_file, instruction_number)
+        instruction_number = instruction_number + 1
+        #read new line and break if eof
         line_to_decode = code_file.readline()
         if ("" == line_to_decode):
             break
