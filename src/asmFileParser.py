@@ -16,15 +16,60 @@ def is_operation(string):
     return (string in key_list)
 
 
+def get_binary_code_for_immediate(string):
+    #get the value without #
+    value = (int)(string[1:])
+    binary_value = (bin(value))
+    #NEGATIVE NUMBERS!!!!
+    first_digit = binary_value[0]
+    #get rid of the first xb
+    binary_value = binary_value[2:]
+    binary_value_size = len(binary_value)
+    number_of_bits_to_complete = header.IMMEDIATE_VALUE_SIZE - binary_value_size
+    nine_bit_immediate_value = ""
+    for i in range(0, number_of_bits_to_complete):
+        nine_bit_immediate_value += first_digit
+    nine_bit_immediate_value += binary_value
+    #print(nine_bit_immediate_value)
+    return nine_bit_immediate_value 
+
+
+def get_binary_code_for_register(string):
+    one_bit_binary_code = ""
+    string = string.upper()
+    try:
+        register_value = header.REGISTERS[string]
+    except:
+        register_value = str(0xFFFF)
+        return register_value
+
+    one_bit_binary_code = str(register_value)
+    #print(one_bit_binary_code)
+    return one_bit_binary_code
+
+
+def get_termen(string):
+    #termen might have Rx format or #N; 
+    binary_code = 0
+    if '#' in string:
+        binary_code = get_binary_code_for_immediate(string)
+    elif 'R' in string:
+        binary_code = get_binary_code_for_register(string)
+    return binary_code
+
+
 def parse_asm_line(line):
     words_in_line = re.split(" |, ", line)
     print(words_in_line)
+    #if there is a label, the opcode is on index 1 in the line
     operation_index = 0 if is_operation(words_in_line[0]) else 1
     operation = words_in_line[operation_index]
     opcode = get_opcode(operation)
-    termen1 = int(words_in_line[operation_index + 1])
-    termen2 = int(words_in_line[operation_index + 2])
-    print(opcode + bin(termen1) + bin(termen2))
+
+    #termen might be immediate value or register
+    termen1 = get_termen(words_in_line[operation_index + 1])
+    termen2 = get_termen(words_in_line[operation_index + 2])
+    print(opcode + " " + termen1 + " " + termen2)
 
 
 def open_and_parse_file():
