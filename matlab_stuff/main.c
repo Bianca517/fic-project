@@ -1,11 +1,11 @@
 #include "header.h"
 
-uint16_t alu_stack_pointer_fcn(uint16_t stack_pointer_from_SP_reg, uint8_t spO)
+uint16_t ALU_SP_fcn(uint16_t stack_pointer_from_SP_reg, uint8_t spO)
 {
     // stiva creste invers in memorie
     //  presupun ca daca spO e 0, am PUSH
     //  presupun ca daca spO e 1, am POP
-    if (0U == spO)
+    if (FALSE == spO)
     {
         stack_pointer_from_SP_reg--;
     }
@@ -45,124 +45,127 @@ uint16_t tst(uint16_t operand, uint16_t mask)
     return (operand & mask) != 0;
 }
 
-uint16_t alu1_fcn(uint16_t opA, uint16_t opB, uint8_t signalControl)
+uint16_t main_ALU_fcn(boolean aluOp, uint16_t opA, uint16_t opB, uint8_t signalControl)
 {
     uint16_t result;
     uint16_t bits = 1;
     uint16_t mask;
-    switch (signalControl)
+    if (aluOp)
     {
-    case 0:
-        // perform the addition operation
-        result = opA + opB;
-        break;
-    case 1:
-        // perform the subtraction operation
-        result = opA - opB;
-        break;
-    case 2:
-        // perform the logical shift right operation
-        result = result >> bits;
-        break;
-    case 3:
-        // perfrom the logical shift left operation
-        result = result << bits;
-        break;
-    case 4:
-        // perform the RSR operation
-        // var pt MSB = (result & 1) << 15;
-        // result = result >> 1;
-        // result = result | MSB
-        break;
-    case 5:
-        // perform the RSL operation
-        result = result << bits;
-        break;
-    case 6:
-        // perform the MOV operation
-        break;
-    case 7:
-        // perform the MUL operation
-        result = opA * opB;
-        break;
-    case 8:
-        // perform the DIV operation
-        if (opA != 0 && opB == 0)
+        switch (signalControl)
         {
-            result = opB / opA;
-        }
-        if (opB != 0 && opA == 0)
-        {
+        case 0:
+            // perform the addition operation
+            result = opA + opB;
+            break;
+        case 1:
+            // perform the subtraction operation
+            result = opA - opB;
+            break;
+        case 2:
+            // perform the logical shift right operation
+            result = result >> bits;
+            break;
+        case 3:
+            // perfrom the logical shift left operation
+            result = result << bits;
+            break;
+        case 4:
+            // perform the RSR operation
+            // var pt MSB = (result & 1) << 15;
+            // result = result >> 1;
+            // result = result | MSB
+            break;
+        case 5:
+            // perform the RSL operation
+            result = result << bits;
+            break;
+        case 6:
+            // perform the MOV operation
+            break;
+        case 7:
+            // perform the MUL operation
+            result = opA * opB;
+            break;
+        case 8:
+            // perform the DIV operation
+            if (opA != 0 && opB == 0)
+            {
+                result = opB / opA;
+            }
+            if (opB != 0 && opA == 0)
+            {
+                result = opA / opB;
+            }
+            if (opA == 0 && opB == 0)
+            {
+                // error code to signal the fact that the operation was not possible
+                result = -1;
+            }
             result = opA / opB;
+            break;
+        case 9:
+            // perform the MOD operation
+            result = opA % opB;
+            break;
+            /*
+        case 9:
+            // perform the AND operation
+            result = opA & opB;
+            break;*/
+        case 10:
+            // perform the OR operation
+            result = opA | opB;
+            break;
+        case 11:
+            // perform the XOR operation
+            result = opA ^ opB;
+            break;
+        case 12:
+            // perform the NOT operation on the first operand
+            result = ~opA;
+            break;
+        case 13:
+            // perform the NOT operation on the second operand
+            result = ~opB;
+            break;
+        case 14:
+            // perform the CMP operation
+            result = cmp(opA, opB);
+            break;
+        case 15:
+            // perform the TST operation on the first operand
+            result = tst(opA, mask);
+            break;
+        case 16:
+            // perform the TST operation on the second operand
+            result = tst(opB, mask);
+            break;
+        case 17:
+            // perform the INC operation on the first operand
+            result = opA + 1;
+            break;
+        case 18:
+            // perform the INC operation on the second operand
+            result = opB + 1;
+            break;
+        case 19:
+            // perform the DEC operation on the first operand
+            result = opA - 1;
+            break;
+        case 20:
+            // perform the DEC operation on the second operand
+            result = opB - 1;
+            break;
+        default:
+            // if the control signals are not recognised, return 0
+            result = 0;
         }
-        if (opA == 0 && opB == 0)
-        {
-            // error code to signal the fact that the operation was not possible
-            result = -1;
-        }
-        result = opA / opB;
-        break;
-    case 9:
-        // perform the MOD operation
-        result = opA % opB;
-        break;
-        /*
-    case 9:
-        // perform the AND operation
-        result = opA & opB;
-        break;*/
-    case 10:
-        // perform the OR operation
-        result = opA | opB;
-        break;
-    case 11:
-        // perform the XOR operation
-        result = opA ^ opB;
-        break;
-    case 12:
-        // perform the NOT operation on the first operand
-        result = ~opA;
-        break;
-    case 13:
-        // perform the NOT operation on the second operand
-        result = ~opB;
-        break;
-    case 14:
-        // perform the CMP operation
-        result = cmp(opA, opB);
-        break;
-    case 15:
-        // perform the TST operation on the first operand
-        result = tst(opA, mask);
-        break;
-    case 16:
-        // perform the TST operation on the second operand
-        result = tst(opB, mask);
-        break;
-    case 17:
-        // perform the INC operation on the first operand
-        result = opA + 1;
-        break;
-    case 18:
-        // perform the INC operation on the second operand
-        result = opB + 1;
-        break;
-    case 19:
-        // perform the DEC operation on the first operand
-        result = opA - 1;
-        break;
-    case 20:
-        // perform the DEC operation on the second operand
-        result = opB - 1;
-        break;
-    default:
-        // if the control signals are not recognised, return 0
-        result = 0;
     }
     return result;
 }
 
-uint16_t alu_fcn(uint8_t *PC, uint8_t signalControl)
+uint16_t ALU_PC_fcn(uint8_t *PC, uint8_t signalControl)
 {
     if (signalControl == 0)
     {
@@ -177,7 +180,7 @@ uint16_t alu_fcn(uint8_t *PC, uint8_t signalControl)
 
 uint16_t pc_fcn(uint8_t *PC, uint8_t signalControl)
 {
-    uint16_t counter = alu_fcn(PC, signalControl);
+    uint16_t counter = ALU_PC_fcn(PC, signalControl);
     return counter;
 }
 
@@ -240,6 +243,64 @@ uint16_t data_memory_fcn(uint16_t inp1, uint16_t inp2, uint16_t inp3)
 
 uint16_t register_file_fcn(uint8_t inp1, uint16_t inp2, uint16_t inp3, uint16_t inp4)
 {
+}
+
+void control_unit_fcn(uint8_t instruction, boolean *next, boolean *br_oth, boolean *aluOp, boolean *LSE, boolean *LDM, boolean *LACC, boolean *ABS, boolean *spO)
+{
+    // SP OP
+    if (0b100000 == instruction)
+    { // PSH
+        (*spO) = FALSE;
+    }
+    else if (0b100001 == instruction)
+    { // POP
+        (*spO) = TRUE;
+    }
+
+    if (0b100010 <= instruction && 0b101000 >= instruction)
+    { // BRANCH
+        (*br_oth) = TRUE;
+        // if BRA, also activate ABS (always branch signal)
+        if (0b100110 == instruction)
+        {
+            (*ABS) = TRUE;
+        }
+        else
+        {
+            (*ABS) = FALSE;
+        }
+        (*next) = FALSE;
+    }
+    else
+    {
+        (*br_oth) = FALSE;
+        (*next) = TRUE;
+    }
+
+    if (0b000001 <= instruction && 0b011101 >= instruction)
+    { // ARITM OR LOGIC OP
+        (*aluOp) = instruction;
+
+        // if there is an opcode with immediate value => we need to perform an ALU op with the immd value =>
+        //=> extend it from 9bit to 16bit
+        if (0b010011 <= instruction && 0b011101 >= instruction)
+        {
+            (*LSE) = TRUE;
+        }
+        else
+        {
+            (*LSE) = FALSE;
+        }
+    }
+    else
+    {
+        (*aluOp) = FALSE;
+    }
+
+    if (0b011111 == instruction)
+    { // LDR
+        (*LDM) = 1U;
+    }
 }
 
 int main()
