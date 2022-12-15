@@ -4,17 +4,23 @@ import re
 
 LABEL_DICT = {}
 
-def get_opcode(operation):
-   key_list = list(opcodes.opcodes_list.keys())
-   val_list = list(opcodes.opcodes_list.values())
-   operation_position = key_list.index(operation)
-   opcode = val_list[operation_position]
-   return opcode
+def get_opcode(operation, is_operation_with_immediate):
+    if is_operation_with_immediate:
+        key_list = list(opcodes.opcodes_with_immediate_dict.keys())
+        val_list = list(opcodes.opcodes_with_immediate_dict.values())
+    else:
+        key_list = list(opcodes.opcodes_dict.keys())
+        val_list = list(opcodes.opcodes_dict.values())
+
+    operation_position = key_list.index(operation)
+    opcode = val_list[operation_position]
+    return opcode
 
 
 def is_operation(string):
-    key_list = list(opcodes.opcodes_list.keys())
-    return (string in key_list)
+    key_list1 = list(opcodes.opcodes_dict.keys())
+    key_list2 = list(opcodes.opcodes_with_immediate_dict.keys())
+    return ((string in key_list1) or (string in key_list2))
 
 
 def get_binary_code_for_immediate(string):
@@ -77,6 +83,7 @@ def get_instruction_number_formatted(instruction_number):
 def parse_asm_line(line, output_file, instruction_number):
     global LABEL_DICT
     termens_arr = []
+    is_operation_with_immediate = ('#' in line)
     words_in_line = re.split(" |, ", line)
     print(words_in_line)
     #if there is a label, the opcode is on index 1 in the line
@@ -87,7 +94,7 @@ def parse_asm_line(line, output_file, instruction_number):
         LABEL_DICT.update({words_in_line[0]: ten_bit_instruction_number})
 
     operation = words_in_line[operation_index]
-    opcode = get_opcode(operation)
+    opcode = get_opcode(operation, is_operation_with_immediate)
 
     #index through the rest of termens in the line
     for index in range (operation_index + 1, len(words_in_line)):
