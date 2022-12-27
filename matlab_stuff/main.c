@@ -5,7 +5,7 @@ uint16_t ALU_SP_fcn(uint16_t stack_pointer_from_SP_reg, uint8_t spO)
     // stiva creste invers in memorie
     //  presupun ca daca spO e 0, am PUSH
     //  presupun ca daca spO e 1, am POP
-    if (FALSE == spO)
+    if (false == spO)
     {
         stack_pointer_from_SP_reg--;
     }
@@ -45,7 +45,7 @@ uint16_t tst(uint16_t operand, uint16_t mask)
     return (operand & mask) != 0;
 }
 
-uint16_t main_ALU_fcn(boolean aluOp, uint16_t opA, uint16_t opB, uint8_t signalControl)
+uint16_t main_ALU_fcn(bool aluOp, uint16_t opA, uint16_t opB, uint8_t signalControl)
 {
     uint16_t result;
     uint16_t bits = 1;
@@ -165,25 +165,92 @@ uint16_t main_ALU_fcn(boolean aluOp, uint16_t opA, uint16_t opB, uint8_t signalC
     return result;
 }
 
-uint16_t ALU_PC_fcn(uint8_t *PC, uint8_t signalControl)
+uint16_t ALU_PC_fcn(uint16_t PC_value, bool next_signal)
 {
-    if (signalControl == 0)
+    // only if next signal is active, increment the program counter
+    // else, leave it like this because it means we have branch => take into consideration the given address
+    if (true == next_signal)
     {
-        (*PC)--;
+        PC_value++;
     }
-    if (signalControl == 1)
-    {
-        (*PC)++;
-    }
-    return *PC;
+
+    return PC_value;
 }
 
-uint16_t pc_fcn(uint8_t *PC, uint8_t signalControl)
+uint16_t program_counter_fcn(uint32_t clk, uint8_t PC_from_ALU, bool always_branch_signal, bool jmp_signal, uint16_t address)
 {
-    uint16_t counter = ALU_PC_fcn(PC, signalControl);
-    return counter;
+    uint16_t PC_to_return = 0U;
+
+    if (clk)
+    {
+        if (always_branch_signal || jmp_signal)
+        {
+            PC_to_return = address;
+        }
+        else
+        {
+            PC_to_return = PC_from_ALU;
+        }
+    }
+
+    return PC_to_return;
 }
 
+void Demux(bool BR_or_OTH, uint10_t arguments, uint10_t *Y0, uint10_t *Y1)
+{
+    // if BR_or_OTH is true => BR => Y0 active
+    // if BR_or_OTH is false => OTH => Y1 active
+    if (true == BR_or_OTH)
+    {
+        (*Y0).x = arguments.x; //"arguments" represents a 10 bit address
+        // leave Y1 to HI-Z
+    }
+    else
+    {
+        (*Y1).x = arguments.x;
+        // leave Y0 to Hi-Z
+    }
+}
+
+void Demux2(uint10_t arguments, bool *reg_sel, uint9_t *immediate)
+{
+    *reg_sel = (arguments.x >> 9) & 0x001 ? true : false; // msb is 1 => true, else false
+    (*immediate).x = arguments.x & 0x1FF;
+}
+
+uint16_t sign_extend_10_to_16_fcn(uint32_t clk, uint10_t input)
+{
+    uint16_t output;
+    if (clk)
+    {
+        output = 0U;
+        uint8_t i;
+        for (i = 15; i >= 10; i--)
+        {
+            output |= ((input.x & (1 << 9)) << i);
+        }
+        output |= input.x;
+        // show_bits(output);
+    }
+    return output; // leave output on Hi-Z if not synced with clk
+}
+
+uint16_t sign_extend_9_to_16_fcn(uint32_t clk, uint9_t input)
+{
+    uint16_t output;
+    if (clk)
+    {
+        output = 0U;
+        uint8_t i;
+        for (i = 15; i >= 9; i--)
+        {
+            output |= ((input.x & (1 << 9)) << i);
+        }
+        output |= input.x;
+        // show_bits(output);
+    }
+    return output; // leave output on Hi-Z if not synced with clk
+}
 /*
 uint16_t accumulator_fcn(uint16_t a, uint16_t b, uint16_t inp, uint8_t signalControl)
 {
@@ -245,36 +312,36 @@ uint16_t register_file_fcn(uint8_t inp1, uint16_t inp2, uint16_t inp3, uint16_t 
 {
 }
 
-void control_unit_fcn(uint8_t instruction, boolean *next, boolean *br_oth, boolean *aluOp, boolean *LSE, boolean *LDM, boolean *LACC, boolean *ABS, boolean *spO)
+void control_unit_fcn(uint8_t instruction, bool *next, bool *br_oth, bool *aluOp, bool *LSE, bool *LDM, bool *LACC, bool *ABS, bool *spO)
 {
     // SP OP
     if (0b100000 == instruction)
     { // PSH
-        (*spO) = FALSE;
+        (*spO) = false;
     }
     else if (0b100001 == instruction)
     { // POP
-        (*spO) = TRUE;
+        (*spO) = true;
     }
 
     if (0b100010 <= instruction && 0b101000 >= instruction)
     { // BRANCH
-        (*br_oth) = TRUE;
+        (*br_oth) = true;
         // if BRA, also activate ABS (always branch signal)
         if (0b100110 == instruction)
         {
-            (*ABS) = TRUE;
+            (*ABS) = true;
         }
         else
         {
-            (*ABS) = FALSE;
+            (*ABS) = false;
         }
-        (*next) = FALSE;
+        (*next) = false;
     }
     else
     {
-        (*br_oth) = FALSE;
-        (*next) = TRUE;
+        (*br_oth) = false;
+        (*next) = true;
     }
 
     if (0b000001 <= instruction && 0b011101 >= instruction)
@@ -285,16 +352,16 @@ void control_unit_fcn(uint8_t instruction, boolean *next, boolean *br_oth, boole
         //=> extend it from 9bit to 16bit
         if (0b010011 <= instruction && 0b011101 >= instruction)
         {
-            (*LSE) = TRUE;
+            (*LSE) = true;
         }
         else
         {
-            (*LSE) = FALSE;
+            (*LSE) = false;
         }
     }
     else
     {
-        (*aluOp) = FALSE;
+        (*aluOp) = false;
     }
 
     if (0b011111 == instruction)
@@ -331,6 +398,29 @@ void instruction_memory_fcn(uint16_t program_counter, uint6_t *instruction_regis
     // printf("%x %d %d\n", current_instruction_u16, (*instruction_register).x, (*arguments).x);
 }
 
+uint10_t arguments_register_fcn(uint10_t arguments)
+{
+    uint10_t register_arg;
+    register_arg = arguments;
+    return register_arg;
+}
+
+uint6_t instruction_register_fcn(uint6_t instruction)
+{
+    uint6_t register_instr;
+    register_instr = instruction;
+    return register_instr;
+}
+
+void show_bits(uint16_t a)
+{
+    int8_t i;
+    for (i = 15; i >= 0; i--)
+    {
+        printf("%d", (a >> i) & 1);
+    }
+}
+
 int main()
 {
     /*
@@ -338,5 +428,6 @@ int main()
     uint10_t AR;
     instruction_memory_fcn(1, &IR, &AR);
     */
+
     return 0;
 }
