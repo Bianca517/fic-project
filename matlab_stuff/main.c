@@ -111,10 +111,9 @@ void show_bits(uint16_t a)
 int main()
 {
     /*
-    uint6_t IR;
-    uint10_t AR;
-    instruction_memory_fcn(1, &IR, &AR);
+
     */
+    read_machine_code();
 
     return 0;
 }

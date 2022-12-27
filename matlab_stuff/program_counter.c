@@ -6,7 +6,7 @@ uint16_t ALU_PC_fcn(uint16_t PC_value, bool next_signal)
     // else, leave it like this because it means we have branch => take into consideration the given address
     if (true == next_signal)
     {
-        PC_value++;
+        PC_value += 2; // instructiunile sunt pe 2 bytes
     }
 
     return PC_value;
