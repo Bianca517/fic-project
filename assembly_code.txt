@@ -1,4 +1,5 @@
-ADD 7, 9
-SUB 8, 1
-MUL 6, 2
-DIV 2, 2
+ADD RX, #7
+label MOV RX, #2
+ADD RY, #6
+CMP RX, #4
+JMP label

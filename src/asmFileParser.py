@@ -76,6 +76,8 @@ def write_output(output_file, opcode, termens_arr):
     for termen in termens_arr:
         print(termen)
         output_file.write(str(termen))
+        
+    output_file.write('\n')
 
 def get_instruction_number_formatted(instruction_number):
     return bin(instruction_number)[2:].zfill(10)

@@ -27,6 +27,7 @@ void flags_fcn(uint8_t ZF, uint8_t NF, uint8_t CF, uint8_t OF);
 void instruction_memory_fcn(uint16_t program_counter, uint6_t *instruction_register, uint10_t *arguments);
 uint6_t instruction_register_fcn(uint6_t instruction);
 uint10_t arguments_register_fcn(uint10_t arguments);
+void read_machine_code();
 
 uint16_t program_counter_fcn(uint32_t clk, uint8_t PC_from_ALU, bool always_branch_signal, bool jmp_signal, uint16_t address);
 uint16_t ALU_PC_fcn(uint16_t PC_value, bool next_signal);
