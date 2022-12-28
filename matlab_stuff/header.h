@@ -34,7 +34,7 @@ uint16_t ALU_PC_fcn(uint16_t PC_value, bool next_signal);
 void Demux(bool BR_or_OTH, uint10_t arguments, uint10_t *Y0, uint10_t *Y1);
 uint16_t sign_extend_10_to_16_fcn(uint32_t clk, uint10_t input);
 
-uint16_t main_ALU_fcn(bool aluOp, uint16_t opA, uint16_t opB, uint8_t signalControl);
+uint16_t main_ALU_fcn(bool aluOp, uint16_t opA, uint16_t opB, bool *ZF, bool *NF, bool *CF, bool *OF);
 uint16_t sgn_extend_fct(int input);
 uint16_t sgn_extend1_fct(uint8_t input);
 uint16_t accumulator_fcn(uint16_t a, uint16_t b, uint16_t inp, uint8_t signalControl);

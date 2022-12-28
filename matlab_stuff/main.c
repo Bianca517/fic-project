@@ -1,4 +1,5 @@
 #include "header.h"
+#include "opcodes.h"
 
 void Demux(bool BR_or_OTH, uint10_t arguments, uint10_t *Y0, uint10_t *Y1)
 {
