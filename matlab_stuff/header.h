@@ -41,7 +41,7 @@ bool Mux(bool x0, bool x1, bool x2, bool x3, bool br_oth, bool c1, bool c0);
 void Demux_BR(uint6_t opcode, bool *c0, bool *c1, bool br_oth);
 uint16_t data_memory_fcn(uint16_t inp1, uint16_t inp2, uint16_t inp3);
 
-uint16_t register_file_fcn(uint8_t inp1, uint16_t inp2, uint16_t inp3, uint16_t inp4);
+uint16_t register_file_fcn(uint32_t clk, bool reg_select, uint16_t accumulator, uint16_t data_memory, bool LSE, bool LDM, bool LACC, uint16_t ext_immediate);
 uint16_t sign_extend_9_to_16_fcn(uint32_t clk, uint9_t input);
 void Demux2(uint10_t arguments, bool *reg_sel, uint9_t *immediate);
 
