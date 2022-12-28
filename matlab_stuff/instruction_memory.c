@@ -7,9 +7,9 @@ void instruction_memory_fcn(uint16_t program_counter, uint6_t *instruction_regis
     // program counterul are adresa instructiunii curente...instructiunea e pe 16 biti
     // deci pozitia din instructions la care se gaseste instr curenta e &instructions + PC * 8biti
     printf("in funct %s\n", instructions);
-    char current_instruction[17];
+    char current_instruction[16];
     strncpy(current_instruction, instructions + (program_counter * 8), 16);
-    current_instruction[17] = '\0';
+    current_instruction[16] = '\0';
     printf("%s\n", current_instruction);
 
     // from char to int
@@ -91,9 +91,4 @@ void read_machine_code()
 
     free(aux);
     free(read_string);
-
-    // TBD: make it work when called from another file
-    uint6_t IR;
-    uint10_t AR;
-    instruction_memory_fcn(2, &IR, &AR);
 }
