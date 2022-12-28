@@ -169,3 +169,63 @@ uint16_t main_ALU_fcn(bool aluOp, uint16_t opA, uint16_t opB, bool *ZF, bool *NF
 
     return result;
 }
+
+void flags_register_fcn(bool *ZF, bool *NF, bool *CF, bool *OF)
+{
+    bool ZF_reg;
+    bool NF_reg;
+    bool CF_reg;
+    bool OF_reg;
+
+    ZF_reg = *ZF;
+    NF_reg = *NF;
+    CF_reg = *CF;
+    OF_reg = *OF;
+}
+
+bool Mux(bool x0, bool x1, bool x2, bool x3, bool br_oth, bool c1, bool c0)
+{
+    bool jmp = false;
+    uint6_t mask;
+    if (br_oth)
+    {
+        mask.x = 0b000000; // build here the same part of the branches opcodes
+        mask.x |= (c1 << 1) | c0;
+
+        switch (mask.x)
+        {
+        case BRZ:
+            x0 ? (jmp = true) : (jmp = false);
+            break;
+        case BRN:
+            x1 ? (jmp = true) : (jmp = false);
+            break;
+        case BRC:
+            x2 ? (jmp = true) : (jmp = false);
+            break;
+        case BRO:
+            x3 ? (jmp = true) : (jmp = false);
+            break;
+        default:
+            break;
+        }
+    }
+    return jmp;
+}
+
+uint16_t accumulator_register_fcn(uint16_t x)
+{
+    uint16_t acc_reg;
+    acc_reg = x;
+    return acc_reg;
+}
+
+void Demux_BR(uint6_t opcode, bool *c0, bool *c1, bool br_oth)
+{
+    if (br_oth)
+    {
+        // TO SEE WHICH ARE THE POSITION IN BRANCH OPCODEs THAT DIFFER
+        (*c0) = opcode.x & (1 << 1);
+        (*c1) = opcode.x & (1 << 0);
+    }
+}

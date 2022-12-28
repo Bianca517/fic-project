@@ -35,14 +35,17 @@ void Demux(bool BR_or_OTH, uint10_t arguments, uint10_t *Y0, uint10_t *Y1);
 uint16_t sign_extend_10_to_16_fcn(uint32_t clk, uint10_t input);
 
 uint16_t main_ALU_fcn(bool aluOp, uint16_t opA, uint16_t opB, bool *ZF, bool *NF, bool *CF, bool *OF);
-uint16_t sgn_extend_fct(int input);
-uint16_t sgn_extend1_fct(uint8_t input);
-uint16_t accumulator_fcn(uint16_t a, uint16_t b, uint16_t inp, uint8_t signalControl);
+uint16_t accumulator_register_fcn(uint16_t x);
+void flags_register_fcn(bool *ZF, bool *NF, bool *CF, bool *OF);
+bool Mux(bool x0, bool x1, bool x2, bool x3, bool br_oth, bool c1, bool c0);
+void Demux_BR(uint6_t opcode, bool *c0, bool *c1, bool br_oth);
 uint16_t data_memory_fcn(uint16_t inp1, uint16_t inp2, uint16_t inp3);
 
 uint16_t register_file_fcn(uint8_t inp1, uint16_t inp2, uint16_t inp3, uint16_t inp4);
 uint16_t sign_extend_9_to_16_fcn(uint32_t clk, uint9_t input);
 void Demux2(uint10_t arguments, bool *reg_sel, uint9_t *immediate);
 
+uint16_t sgn_extend_fct(int input);
+uint16_t sgn_extend1_fct(uint8_t input);
 // FOR DEBUG PURPOSES
 void show_bits(uint16_t a);
