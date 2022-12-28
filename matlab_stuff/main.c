@@ -17,28 +17,6 @@ void Demux(bool BR_or_OTH, uint10_t arguments, uint10_t *Y0, uint10_t *Y1)
     }
 }
 
-void Demux2(uint10_t arguments, bool *reg_sel, uint9_t *immediate)
-{
-    *reg_sel = (arguments.x >> 9) & 0x001 ? true : false; // msb is 1 => true, else false
-    (*immediate).x = arguments.x & 0x1FF;
-}
-
-uint16_t sign_extend_9_to_16_fcn(uint32_t clk, uint9_t input)
-{
-    uint16_t output;
-    if (clk)
-    {
-        output = 0U;
-        uint8_t i;
-        for (i = 15; i >= 9; i--)
-        {
-            output |= ((input.x & (1 << 9)) << i);
-        }
-        output |= input.x;
-        // show_bits(output);
-    }
-    return output; // leave output on Hi-Z if not synced with clk
-}
 /*
 uint16_t accumulator_fcn(uint16_t a, uint16_t b, uint16_t inp, uint8_t signalControl)
 {
@@ -93,10 +71,6 @@ uint16_t sgn_extend1_fct(uint8_t input)
 }
 
 uint16_t data_memory_fcn(uint16_t inp1, uint16_t inp2, uint16_t inp3)
-{
-}
-
-uint16_t register_file_fcn(uint8_t inp1, uint16_t inp2, uint16_t inp3, uint16_t inp4)
 {
 }
 
