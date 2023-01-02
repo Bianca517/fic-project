@@ -1,22 +1,23 @@
 #include "header.h"
+#include "opcodes.h"
 
-void control_unit_fcn(uint8_t instruction, bool *next, bool *br_oth, bool *aluOp, bool *LSE, bool *LDM, bool *LACC, bool *ABS, bool *spO)
+void control_unit_fcn(uint6_t instruction, bool *next, bool *br_oth, uint6_t *aluOp, bool *LSE, bool *LDM, bool *LACC, bool *ABS, uint2_t *spO)
 {
     // SP OP
-    if (0b100000 == instruction)
+    if (PSH == instruction.x)
     { // PSH
-        (*spO) = false;
+        spO->x = 1U;
     }
-    else if (0b100001 == instruction)
+    else if (POP == instruction.x)
     { // POP
-        (*spO) = true;
+        spO->x = 2U;
     }
 
-    if (0b100010 <= instruction && 0b101000 >= instruction)
+    if (BRZ <= instruction.x && RET >= instruction.x)
     { // BRANCH
         (*br_oth) = true;
         // if BRA, also activate ABS (always branch signal)
-        if (0b100110 == instruction)
+        if (BRA == instruction.x)
         {
             (*ABS) = true;
         }
@@ -32,13 +33,13 @@ void control_unit_fcn(uint8_t instruction, bool *next, bool *br_oth, bool *aluOp
         (*next) = true;
     }
 
-    if (0b000001 <= instruction && 0b011101 >= instruction)
+    if (ADDI <= instruction.x && TSTI >= instruction.x)
     { // ARITM OR LOGIC OP
-        (*aluOp) = instruction;
+        (*aluOp).x = instruction.x;
 
         // if there is an opcode with immediate value => we need to perform an ALU op with the immd value =>
         //=> extend it from 9bit to 16bit
-        if (0b010011 <= instruction && 0b011101 >= instruction)
+        if (0b010011 <= instruction.x && 0b011101 >= instruction.x)
         {
             (*LSE) = true;
         }
@@ -49,10 +50,10 @@ void control_unit_fcn(uint8_t instruction, bool *next, bool *br_oth, bool *aluOp
     }
     else
     {
-        (*aluOp) = false;
+        (*aluOp).x = 0U;
     }
 
-    if (0b011111 == instruction)
+    if (0b011111 == instruction.x)
     { // LDR
         (*LDM) = 1U;
     }

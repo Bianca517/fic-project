@@ -1,27 +1,29 @@
 #include "header.h"
 
-uint16_t ALU_SP_fcn(uint16_t stack_pointer_from_SP_reg, uint8_t spO)
+static uint16_t stack_pointer_address = 400U;
+
+uint16_t ALU_SP_fcn(uint16_t stack_pointer, uint2_t *spO)
 {
     // stiva creste invers in memorie
-    //  presupun ca daca spO e 0, am PUSH
-    //  presupun ca daca spO e 1, am POP
-    if (false == spO)
+    //  presupun ca daca spO e 0, nu am operatie cu stack
+    // presupun ca daca spO e 1, am PUSH
+    //  presupun ca daca spO e 2, am POP => return current address
+    if (spO->x > 0)
     {
-        stack_pointer_from_SP_reg--;
+        if (1U == spO->x)
+        {
+            stack_pointer--;
+        }
     }
-    if (1U == spO)
-    {
-        stack_pointer_from_SP_reg++;
-    }
-    return stack_pointer_from_SP_reg;
+    return stack_pointer;
 }
 
-uint16_t stack_pointer_fcn(uint16_t stack_pointer_value_from_ALU)
+uint16_t stack_pointer_fcn(uint2_t *spO)
 {
-    // stackul incepe in memorie de la adresa 400, deci primul push va fi pus la 399
-    static uint16_t stack_pointer_address = 0x400;
+    // stackul incepe in memorie de la adresa 399, deci 400-1
 
-    stack_pointer_address = stack_pointer_value_from_ALU;
+    stack_pointer_address = ALU_SP_fcn(stack_pointer_address, spO);
 
+    printf("Stack pointer-ul are adresa: %d\n", stack_pointer_address);
     return stack_pointer_address;
 }
