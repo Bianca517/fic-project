@@ -1,16 +1,18 @@
 #include "header.h"
 
 static char *instructions;
+static uint10_t arguments_register;
+static uint6_t instruction_register;
 
-void instruction_memory_fcn(uint16_t program_counter, uint6_t *instruction_register, uint10_t *arguments)
+uint16_t instruction_memory_fcn(uint16_t program_counter)
 {
     // program counterul are adresa instructiunii curente...instructiunea e pe 16 biti
     // deci pozitia din instructions la care se gaseste instr curenta e &instructions + PC * 8biti
-    printf("in funct %s\n", instructions);
+    // printf("in funct %s\n", instructions);
     char current_instruction[16];
     strncpy(current_instruction, instructions + (program_counter * 8), 16);
     current_instruction[16] = '\0';
-    printf("%s\n", current_instruction);
+    printf("Current instruction to decode: %s\n", current_instruction);
 
     // from char to int
     uint16_t current_instruction_u16 = 0;
@@ -24,23 +26,24 @@ void instruction_memory_fcn(uint16_t program_counter, uint6_t *instruction_regis
     }
 
     // printf("%d\n", current_instruction_u16);
-    (*arguments).x = current_instruction_u16 & 0x3FF;                   // primii 10 biti LSB
-    (*instruction_register).x = (current_instruction_u16 >> 10) & 0x3F; // primii 6 biti MSB
-    printf("%x %d %d\n", current_instruction_u16, (*instruction_register).x, (*arguments).x);
+    return current_instruction_u16;
+    //(*arguments).x = current_instruction_u16 & 0x3FF;                   // primii 10 biti LSB
+    //(*instruction_register).x = (current_instruction_u16 >> 10) & 0x3F; // primii 6 biti MSB
+    // printf("%x %d %d\n", current_instruction_u16, (*instruction_register).x, (*arguments).x);
 }
 
-uint10_t arguments_register_fcn(uint10_t arguments)
+uint10_t arguments_register_fcn(uint16_t instruction)
 {
-    uint10_t register_arg;
-    register_arg = arguments;
-    return register_arg;
+    arguments_register.x = instruction & 0x3FF; // primii 10 biti LSB
+    printf("Arguments register is: 0x%x \n", arguments_register.x);
+    return arguments_register;
 }
 
-uint6_t instruction_register_fcn(uint6_t instruction)
+uint6_t instruction_register_fcn(uint16_t instruction)
 {
-    uint6_t register_instr;
-    register_instr = instruction;
-    return register_instr;
+    instruction_register.x = (instruction >> 10) & 0x3F; // primii 6 biti MSB
+    printf("Instruction register is: 0x%x\n", instruction_register.x);
+    return instruction_register;
 }
 
 void read_machine_code()

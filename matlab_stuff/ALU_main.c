@@ -28,15 +28,15 @@ void check_for_OF(uint16_t opA, uint16_t opB, uint16_t result, bool *OF)
     *OF = (!(MSB_A ^ MSB_B) && (MSB_A ^ MSB_R));
 }
 
-uint16_t main_ALU_fcn(bool aluOp, uint16_t opA, uint16_t opB, bool *ZF, bool *NF, bool *CF, bool *OF)
+uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB, bool *ZF, bool *NF, bool *CF, bool *OF)
 {
     uint16_t result;
 
     *ZF = *NF = *CF = *OF = false;
 
-    if (aluOp)
+    if (aluOp.x)
     {
-        switch (aluOp)
+        switch (aluOp.x)
         {
         case ADDI:
             // perform the addition operation
