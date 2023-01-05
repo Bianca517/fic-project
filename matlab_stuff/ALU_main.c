@@ -1,6 +1,8 @@
 #include "header.h"
 #include "opcodes.h"
 
+extern bool ZF, CF, NF, OF;
+
 uint16_t cmp(uint16_t opA, uint16_t opB)
 {
     if (opA < opB)
@@ -28,13 +30,19 @@ void check_for_OF(uint16_t opA, uint16_t opB, uint16_t result, bool *OF)
     *OF = (!(MSB_A ^ MSB_B) && (MSB_A ^ MSB_R));
 }
 
-uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB, bool *ZF, bool *NF, bool *CF, bool *OF)
+uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB)
 {
     uint16_t result;
 
-    *ZF = *NF = *CF = *OF = false;
+    printf("Operatia executata: %d\n", aluOp.x);
 
-    if (aluOp.x)
+    ZF = false;
+    NF = false;
+    CF = false;
+    OF = false;
+
+    printf("poal");
+    if (0U != aluOp.x)
     {
         switch (aluOp.x)
         {
@@ -43,20 +51,20 @@ uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB, bool *ZF, bool 
             // check for CF
             if ((uint32_t)(opA + opB) > UINT16_MAX)
             {
-                *CF = true;
+                CF = true;
             }
             result = opA + opB;
-            check_for_OF(opA, opB, result, OF);
+            check_for_OF(opA, opB, result, &OF);
             break;
         case SUBI:
             // perform the subtraction operation
             // check for CF
             if (opA < opB)
             {
-                *CF = true;
+                CF = true;
             }
             result = opA - opB;
-            check_for_OF(opA, opB, result, OF);
+            check_for_OF(opA, opB, result, &OF);
             break;
         case LSR:
             // perform the logical shift right operation
@@ -64,7 +72,7 @@ uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB, bool *ZF, bool 
             // check for carry
             if (opA & 0b01)
             {
-                *CF = true;
+                CF = true;
             }
             break;
         case LSL: // these are the same
@@ -76,7 +84,7 @@ uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB, bool *ZF, bool 
             // check for carry
             if (opA & 0b01)
             {
-                *CF = true;
+                CF = true;
             }
             if (opA & (1 << 15)) // if opA's MSB == 1
             {
@@ -152,38 +160,42 @@ uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB, bool *ZF, bool 
             result = opA - 1;
             break;
         default:
-            // if the opcode is not recognised, return 0
-            result = 0;
+            // if the opcode is not recognised, return -1
+            result = -1;
         }
     }
 
     if (result == 0)
     {
-        *ZF = true;
+        ZF = true;
     }
 
     if (result < 0)
     {
-        *NF = true;
+        NF = true;
     }
+
+    printf("Rezultatul obtinut: %d\n", result);
 
     return result;
 }
 
 void flags_register_fcn(bool *ZF, bool *NF, bool *CF, bool *OF)
 {
-    bool ZF_reg;
-    bool NF_reg;
-    bool CF_reg;
-    bool OF_reg;
+    static bool ZF_reg;
+    static bool NF_reg;
+    static bool CF_reg;
+    static bool OF_reg;
 
     ZF_reg = *ZF;
     NF_reg = *NF;
     CF_reg = *CF;
     OF_reg = *OF;
+
+    printf("ZF NF CF OF: %d %d %d %d\n", ZF_reg, NF_reg, CF_reg, OF_reg);
 }
 
-bool Mux(bool x0, bool x1, bool x2, bool x3, bool br_oth, bool c1, bool c0)
+bool Mux_flags(bool x0, bool x1, bool x2, bool x3, bool br_oth, bool c1, bool c0)
 {
     bool jmp = false;
     uint6_t mask;
@@ -210,13 +222,15 @@ bool Mux(bool x0, bool x1, bool x2, bool x3, bool br_oth, bool c1, bool c0)
             break;
         }
     }
+    printf("JMP active? %d\n", jmp);
     return jmp;
 }
 
 uint16_t accumulator_register_fcn(uint16_t x)
 {
-    uint16_t acc_reg;
+    static uint16_t acc_reg;
     acc_reg = x;
+    printf("Accumulator has value: %d\n", acc_reg);
     return acc_reg;
 }
 

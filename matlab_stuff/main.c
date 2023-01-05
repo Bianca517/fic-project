@@ -11,9 +11,12 @@ bool *LACC_signal;
 uint2_t *SPO_signal;
 uint6_t *ALU_OP_signal;
 
+bool ZF, CF, NF, OF;
+
 uint10_t arguments;
 bool *reg_sel;
-uint9_t *immediate;
+uint9_t *immediate_u9;
+uint16_t immediate_u16, ALU_result_u16, accumulator_value_u16;
 
 int sgn_extend_8_to_9(uint8_t input)
 {
@@ -73,12 +76,13 @@ void show_bits(uint16_t a)
 int main()
 {
     double clk;
-    uint16_t current_instruction;
+    uint16_t current_instruction, current_register;
+    uint6_t current_opcode;
     read_machine_code();
     // while
     current_instruction = instruction_memory_fcn(0);
     arguments = arguments_register_fcn(current_instruction);
-    instruction_register_fcn(current_instruction);
+    current_opcode = instruction_register_fcn(current_instruction);
 
     // control unit
     uint10_t *Y0, *Y1;
@@ -96,9 +100,18 @@ int main()
 
         // ALU
         reg_sel = malloc(sizeof(bool));
-        immediate = malloc(sizeof(uint9_t));
-        Demux2(*Y1, reg_sel, immediate);
-        sign_extend_9_to_16_fcn(true, *immediate);
+        immediate_u9 = malloc(sizeof(uint9_t));
+        Demux2(*Y1, reg_sel, immediate_u9);
+        immediate_u16 = sign_extend_9_to_16_fcn(true, *immediate_u9);
+        current_register = register_file_fcn(1U, reg_sel, 5U, 6U, true, false, false, 7U);
+        ALU_OP_signal = malloc(sizeof(uint6_t));
+        ALU_OP_signal->x = 19U;
+        ALU_result_u16 = main_ALU_fcn(*ALU_OP_signal, current_register, immediate_u16);
+        accumulator_value_u16 = accumulator_register_fcn(ALU_result_u16);
+        flags_register_fcn(&ZF, &NF, &CF, &OF);
+        bool c1 = current_opcode.x & (1 << 1);
+        bool c0 = current_opcode.x & 1;
+        Mux_flags(ZF, NF, CF, OF, br_oth, c1, c0);
     }
 
     // la final

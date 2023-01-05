@@ -40,10 +40,10 @@ uint16_t ALU_PC_fcn(uint16_t PC_value, bool next_signal);
 void Demux(bool BR_or_OTH, uint10_t arguments, uint10_t *Y0, uint10_t *Y1);
 uint16_t sign_extend_10_to_16_fcn(double clk, uint10_t input);
 
-uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB, bool *ZF, bool *NF, bool *CF, bool *OF);
+uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB);
 uint16_t accumulator_register_fcn(uint16_t x);
 void flags_register_fcn(bool *ZF, bool *NF, bool *CF, bool *OF);
-bool Mux(bool x0, bool x1, bool x2, bool x3, bool br_oth, bool c1, bool c0);
+bool Mux_flags(bool x0, bool x1, bool x2, bool x3, bool br_oth, bool c1, bool c0);
 void Demux_BR(uint6_t opcode, bool *c0, bool *c1, bool br_oth);
 uint16_t data_memory_fcn(uint16_t register_value, uint16_t stack_pointer_value, uint16_t immediate_sgn_ext);
 
