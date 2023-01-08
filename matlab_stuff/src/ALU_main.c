@@ -41,12 +41,11 @@ uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB)
     CF = false;
     OF = false;
 
-    printf("poal");
     if (0U != aluOp.x)
     {
         switch (aluOp.x)
         {
-        case ADDI:
+        case ADD:
             // perform the addition operation
             // check for CF
             if ((uint32_t)(opA + opB) > UINT16_MAX)
@@ -56,7 +55,7 @@ uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB)
             result = opA + opB;
             check_for_OF(opA, opB, result, &OF);
             break;
-        case SUBI:
+        case SUB:
             // perform the subtraction operation
             // check for CF
             if (opA < opB)
@@ -100,15 +99,15 @@ uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB)
                 result = opA >> opB; // first opB positions in result are filled with 0
             }
             break;
-        case MOVI:
+        case MOV:
             // perform the MOV operation
             result = opB;
             break;
-        case MULI:
+        case MUL:
             // perform the MUL operation
             result = opA * opB;
             break;
-        case DIVI:
+        case DIV:
             // perform the DIV operation
             if (opB)
             {
@@ -119,7 +118,7 @@ uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB)
                 result = -1;
             }
             break;
-        case MODI:
+        case MOD:
             // perform the MOD operation
             if (opB)
             {
@@ -130,15 +129,15 @@ uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB)
                 result = -1;
             }
             break;
-        case ANDI:
+        case AND:
             // perform the AND operation
             result = opA & opB;
             break;
-        case ORI:
+        case OR:
             // perform the OR operation
             result = opA | opB;
             break;
-        case XORI:
+        case XOR:
             // perform the XOR operation
             result = opA ^ opB;
             break;
@@ -147,7 +146,7 @@ uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB)
             result = ~opA;
             break;
         case TST: // these are the same
-        case CMPI:
+        case CMP:
             // load into result the difference...flags are set after switch
             result = opA - opB;
             break;
@@ -160,8 +159,8 @@ uint16_t main_ALU_fcn(uint6_t aluOp, uint16_t opA, uint16_t opB)
             result = opA - 1;
             break;
         default:
-            // if the opcode is not recognised, return -1
-            result = -1;
+            // if the opcode is not recognised, return opA
+            result = opA;
         }
     }
 
@@ -201,7 +200,7 @@ bool Mux_flags(bool x0, bool x1, bool x2, bool x3, bool br_oth, bool c1, bool c0
     uint6_t mask;
     if (br_oth)
     {
-        mask.x = 0b000000; // build here the same part of the branches opcodes
+        mask.x = 0b010100; // build here the same part of the branches opcodes
         mask.x |= (c1 << 1) | c0;
 
         switch (mask.x)

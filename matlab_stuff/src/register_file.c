@@ -79,6 +79,30 @@ uint16_t register_file_fcn(double clk, bool reg_select, uint16_t accumulator, ui
     }
 }
 
-uint16_t data_memory_fcn(uint16_t register_value, uint16_t stack_pointer_value, uint16_t immediate_sgn_ext)
+uint16_t data_memory_fcn(uint16_t *memory, uint6_t current_opcode, uint16_t register_value, uint16_t stack_pointer_address, uint16_t immediate_sgn_ext)
 {
+    uint16_t return_value = 0U;
+    if (LDR == current_opcode.x)
+    {
+        // load from address in immediate
+        return_value = *(memory + immediate_sgn_ext);
+    }
+    else if (STR == current_opcode.x)
+    {
+        // store at address in immediate
+        *(memory + immediate_sgn_ext) = register_value;
+    }
+
+    else if (PSH == current_opcode.x)
+    {
+        // push
+        *(memory + stack_pointer_address - 1U) = register_value;
+    }
+    else if (POP == current_opcode.x)
+    {
+        // pop
+        return_value = *(memory + stack_pointer_address);
+    }
+
+    return return_value;
 }
