@@ -1,5 +1,4 @@
 ADD RX, #7
-label MOV RX, #2
-ADD RY, #6
-CMP RX, #4
-JMP label
+label SUB RX, #7
+BRZ label
+HLT

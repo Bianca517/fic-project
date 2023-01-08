@@ -119,7 +119,7 @@ def open_and_parse_file():
             line_to_decode = line_to_decode[:-1]
 
         parse_asm_line(line_to_decode, output_file, instruction_number)
-        instruction_number = instruction_number + 1
+        instruction_number = instruction_number + 2 #bcz the program count is din 2 in 2
         #read new line and break if eof
         line_to_decode = code_file.readline()
         if ("" == line_to_decode):
